@@ -105,6 +105,232 @@ PRINT_HIST
 ; and provide sufficient comments
 
 
+;EXPLANATION FOR CODE: For MP1, the preceeding lab and class materials helped guide the process of the MP. Upon realizing this relation, it became clear that there were three parts to the MP1, or rather three loops: printing a hexadecimal (converting the binary representation to hexadecimal representation), isolating four bits of a bit string at a time to convert each into hexadecimal, and the formatting of representing the number of appearances in hexadecimal, or the histogram, next to their repsective characters. Each of the preceeding assignments coded these sections. We started with the formatting, which didn't take long, and understood that the value within the histogram address was the starting address of where the data was kept. We understood also that this address, x3F00, needed to be iterated. Then we thought the printing of the hexadecimal would be easy, until we realized there was no TRAP instruction we could use to print a number, except for TRAP 26, but that isn't alowed to be used. Thus we had to use the two parts stated above, to print the hexadecimal to the screen: splitting the bits into four parts then converting each set to hexadecimal. These four hexadecimal values together would provide the hold number in that representation. And after each iteration, we used OUT to print each char one at a time. Lastly, there were no registers left to use as a counter for a hexadecimal loop (loop four times), so we had to copy and paste it four times.
+
+; Partners: jumanas2, macraew2
+
+	
+	AND R0, R0, #0		; init R0	
+
+	LD R1, ASCII		; load first ascii value
+	LD R2, HIST_ADDR	; load histogram
+
+	AND R3, R3, #0		; init hex loop counter (x4)
+
+	AND R4, R4, #0		; init counter
+	LD R4, NUM_BINS		; set counter to 27
+
+	AND R5, R5, #0		; init
+	
+	AND R6, R6, #0		; init
+	
+	
+	; outer loop for formatting
+LOOP	ADD R0, R1, #0		; load ascii value
+	OUT			; print to display
+	ADD R1, R1, #1		; iterate to next ascii value
+	
+	LD R0, SPACE		; load space
+	OUT			; print
+
+	;ADD R0, R2, #0 		; load histogram value
+
+
+	ADD R3, R3, #4		; set hex loop counter to 4
+
+
+	AND R0, R0, #0		; reset R5
+
+	LDR R5, R2, #0		; load value at x3F00 into R0
+
+	; loop to isolate first binary numbers
+HEXLOOP ADD R5, R5, #0		; check R0	
+	BRzp ZERO		; if zero or positive jump to ZERO label
+
+	ADD R0, R0, R0
+	ADD R0, R0, #1
+	BRnzp END
+	
+ZERO	ADD R0, R0, R0
+	
+END	ADD R5, R5, R5
+
+	ADD R3, R3, #-1		; decrement hex loop counter
+	BRp HEXLOOP
+
+	; hexadecimal representation of four digits found from hex loop
+	AND R6, R6, #0		; reset R6
+	ADD R6, R6, #-10	; set R6 to -10
+	
+	ADD R6, R0, R6		; subtract 10 from four bits from hex number to check if it's A-F or 0-9
+	BRn INT			; if four digits are negative then it's a integer
+
+	ADD R0, R0, #15		; add 65 to ascii representation to get letter part of hex repres.
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+
+	BRnzp PRINT
+
+INT	ADD R0, R0, #15		; add 48 to ascii representation to get integer part of hex
+	ADD R0, R0, #15	
+	ADD R0, R0, #15
+	ADD R0, R0, #3		
+
+PRINT	ADD R0, R0, #0		; load hex digit in R0 into R0
+	OUT			; print
+
+; SECOND REPEAT
+
+	; outer loop for formatting
+LOOP1	ADD R3, R3, #4		; set hex loop counter to 4
+
+
+	AND R0, R0, #0		; reset R5
+
+	; loop to isolate first binary numbers
+HEXLOOP1 ADD R5, R5, #0		; check R0	
+	BRzp ZERO1		; if zero or positive jump to ZERO label
+
+	ADD R0, R0, R0
+	ADD R0, R0, #1
+	BRnzp END1
+	
+ZERO1	ADD R0, R0, R0
+	
+END1	ADD R5, R5, R5
+
+	ADD R3, R3, #-1		; decrement hex loop counter
+	BRp HEXLOOP1
+
+	; hexadecimal representation of four digits found from hex loop
+	AND R6, R6, #0		; reset R6
+	ADD R6, R6, #-10	; set R6 to -10
+	
+	ADD R6, R0, R6		; subtract 10 from four bits from hex number to check if it's A-F or 0-9
+	BRn INT1		; if four digits are negative then it's a integer
+
+	ADD R0, R0, #15		; add 65 to ascii representation to get letter part of hex repres.
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+
+	BRnzp PRINT1
+
+INT1	ADD R0, R0, #15		; add 48 to ascii representation to get integer part of hex
+	ADD R0, R0, #15	
+	ADD R0, R0, #15
+	ADD R0, R0, #3		
+
+PRINT1	ADD R0, R0, #0		; load hex digit in R0 into R0
+	OUT			; print
+
+; THIRD REPEAT
+
+	; outer loop for formatting
+LOOP2	ADD R3, R3, #4		; set hex loop counter to 4
+
+
+	AND R0, R0, #0		; reset R5
+
+	; loop to isolate first binary numbers
+HEXLOOP2 ADD R5, R5, #0		; check R0	
+	BRzp ZERO2		; if zero or positive jump to ZERO label
+
+	ADD R0, R0, R0
+	ADD R0, R0, #1
+	BRnzp END2
+	
+ZERO2	ADD R0, R0, R0
+	
+END2	ADD R5, R5, R5
+
+	ADD R3, R3, #-1		; decrement hex loop counter
+	BRp HEXLOOP2
+
+	; hexadecimal representation of four digits found from hex loop
+	AND R6, R6, #0		; reset R6
+	ADD R6, R6, #-10	; set R6 to -10
+	
+	ADD R6, R0, R6		; subtract 10 from four bits from hex number to check if it's A-F or 0-9
+	BRn INT2		; if four digits are negative then it's a integer
+
+	ADD R0, R0, #15		; add 65 to ascii representation to get letter part of hex repres.
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+
+	BRnzp PRINT2
+
+INT2	ADD R0, R0, #15		; add 48 to ascii representation to get integer part of hex
+	ADD R0, R0, #15	
+	ADD R0, R0, #15
+	ADD R0, R0, #3		
+
+PRINT2	ADD R0, R0, #0		; load hex digit in R0 into R0
+	OUT			; print
+	
+; FOURTH REPEAT
+
+	; outer loop for formatting
+LOOP3	ADD R3, R3, #4		; set hex loop counter to 4
+
+
+	AND R0, R0, #0		; reset R5
+
+	; loop to isolate first binary numbers
+HEXLOOP3 ADD R5, R5, #0		; check R0	
+	BRzp ZERO3		; if zero or positive jump to ZERO label
+
+	ADD R0, R0, R0
+	ADD R0, R0, #1
+	BRnzp END3
+	
+ZERO3	ADD R0, R0, R0
+	
+END3	ADD R5, R5, R5
+
+	ADD R3, R3, #-1		; decrement hex loop counter
+	BRp HEXLOOP3
+
+	; hexadecimal representation of four digits found from hex loop
+	AND R6, R6, #0		; reset R6
+	ADD R6, R6, #-10	; set R6 to -10
+	
+	ADD R6, R0, R6		; subtract 10 from four bits from hex number to check if it's A-F or 0-9
+	BRn INT3		; if four digits are negative then it's a integer
+
+	ADD R0, R0, #15		; add 65 to ascii representation to get letter part of hex repres.
+	ADD R0, R0, #15	
+	ADD R0, R0, #15	
+	ADD R0, R0, #5	
+	ADD R0, R0, #5	
+
+	BRnzp PRINT3
+
+INT3	ADD R0, R0, #15		; add 48 to ascii representation to get integer part of hex
+	ADD R0, R0, #15	
+	ADD R0, R0, #15
+	ADD R0, R0, #3		
+
+PRINT3	ADD R0, R0, #0		; load hex digit in R0 into R0
+	OUT			; print
+	
+	
+
+
+ADD R2, R2, #1 		; increment histogram value
+
+	LD R0, NEWLINE		; linebreak
+	OUT			; print
+	
+	ADD R4, R4, #-1		; decrement 27x counter
+	
+	BRp LOOP		; if counter is positive keep looping, otherwise stop
+	
 
 DONE	HALT			; done
 
@@ -117,9 +343,15 @@ AT_MIN_BQ	.FILL xFFE0	; the difference between ASCII '@' and '`'
 HIST_ADDR	.FILL x3F00     ; histogram starting address
 STR_START	.FILL x4000	; string starting address
 
+NEWLINE		.FILL x0A	; newline
+ASCII		.FILL x40	; starting ascii value for "@"
+SPACE		.FILL x20	; ascii for space
+DECDIFF		.FILL x48	; difference in ascii representation to display the 0-9 hex digits
+LETTERDIFF	.FILL x65	; difference in ascii representation to display the A-F hex digits
+
 ; for testing, you can use the lines below to include the string in this
 ; program...
-; STR_START	.FILL STRING	; string starting address
+; STR_START		.FILL STRING	; string starting address
 ; STRING		.STRINGZ "This is a test of the counting frequency code.  AbCd...WxYz."
 
 

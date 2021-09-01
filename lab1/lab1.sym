@@ -1,0 +1,9 @@
+// Symbol table
+// Scope level 0:
+//	Symbol Name       Page Address
+//	----------------  ------------
+//	LOOP              3004
+//	ZERO              3009
+//	END               300A
+//	LABEL             300E
+
