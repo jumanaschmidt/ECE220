@@ -105,6 +105,7 @@ PRINT_HIST
 ; and provide sufficient comments
 
 
+<<<<<<< HEAD
 ;EXPLANATION FOR CODE: For MP1, the preceeding lab and class materials helped guide the process of the MP. Upon realizing this relation, it became clear that there were three parts to the MP1, or rather three loops: printing a hexadecimal (converting the binary representation to hexadecimal representation), isolating four bits of a bit string at a time to convert each into hexadecimal, and the formatting of representing the number of appearances in hexadecimal, or the histogram, next to their repsective characters. Each of the preceeding assignments coded these sections. We started with the formatting, which didn't take long, and understood that the value within the histogram address was the starting address of where the data was kept. We understood also that this address, x3F00, needed to be iterated. Then we thought the printing of the hexadecimal would be easy, until we realized there was no TRAP instruction we could use to print a number, except for TRAP 26, but that isn't alowed to be used. Thus we had to use the two parts stated above, to print the hexadecimal to the screen: splitting the bits into four parts then converting each set to hexadecimal. These four hexadecimal values together would provide the hold number in that representation. And after each iteration, we used OUT to print each char one at a time. Lastly, there were no registers left to use as a counter for a hexadecimal loop (loop four times), so we had to copy and paste it four times.
 
 ; Partners: jumanas2, macraew2
@@ -331,6 +332,8 @@ ADD R2, R2, #1 		; increment histogram value
 	
 	BRp LOOP		; if counter is positive keep looping, otherwise stop
 	
+=======
+>>>>>>> release/master
 
 DONE	HALT			; done
 
@@ -343,6 +346,7 @@ AT_MIN_BQ	.FILL xFFE0	; the difference between ASCII '@' and '`'
 HIST_ADDR	.FILL x3F00     ; histogram starting address
 STR_START	.FILL x4000	; string starting address
 
+<<<<<<< HEAD
 NEWLINE		.FILL x0A	; newline
 ASCII		.FILL x40	; starting ascii value for "@"
 SPACE		.FILL x20	; ascii for space
@@ -352,6 +356,11 @@ LETTERDIFF	.FILL x65	; difference in ascii representation to display the A-F hex
 ; for testing, you can use the lines below to include the string in this
 ; program...
 ; STR_START		.FILL STRING	; string starting address
+=======
+; for testing, you can use the lines below to include the string in this
+; program...
+; STR_START	.FILL STRING	; string starting address
+>>>>>>> release/master
 ; STRING		.STRINGZ "This is a test of the counting frequency code.  AbCd...WxYz."
 
 

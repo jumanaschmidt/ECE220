@@ -1,5 +1,6 @@
 .ORIG x3000
 ; write your code here
+<<<<<<< HEAD
 
 	AND R4, R4, #0	
 	ADD R4, R4, #4	
@@ -30,3 +31,5 @@ HALT
 LABEL .FILL X6C75
 
 .END
+=======
+>>>>>>> release/master
