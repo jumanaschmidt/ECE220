@@ -2,6 +2,49 @@
 ; Write code to read in characters and echo them
 ; till a newline character is entered.
 
+;R0 -> reads input from keyboard
+;R1 -> load and manipulate constants for char checking and checkingat the end for extra "("
+;R2 -> loads stack top to check if there are any extra "("
+;R5 -> result value (1 for balanced, -1 for unbalanced)
+
+
+	ADD R5, R5, #0
+	ADD R5, R5, #1
+
+NEXTC
+	GETC
+	OUT
+	LD R1, NEG_SPACE
+	ADD R1, R0, R1
+	BRz NEXTC
+	LD R1, NEG_LF
+	ADD R1, R1, R0
+	BRz CHECKSTACK
+	JSR IS_BALANCED
+	ADD R5, R5, #0
+	BRn DONE
+	BRz NEXTC
+
+CHECKSTACK
+	LD R1, STACK_START
+	LD R2, STACK_TOP
+	NOT R2, R2		; negate R2 by inverting
+				; add 1
+				; check if STACK_START == STACK_TOP
+				; if we are balanced, we are done
+				; if not, change R5 to be balanced
+
+DONE
+
+HALT
+
+NEG_SPACE	.FILL #-32	; negative of space char for subtraction	
+NEG_LF		.FILL #-10	; negative of newline char for subtraction
+NEG_CR		.FILL #-13	; negative of carriage return char for subtraction
+
+
+
+
  
 SPACE   .FILL x0020
 NEW_LINE        .FILL x000A
@@ -11,6 +54,7 @@ CHAR_RETURN     .FILL x000D
 ;input - R0 holds the input
 ;output - R5 set to -1 if unbalanced. else 1.
 IS_BALANCED
+
 
 NEG_OPEN .FILL xFFD8
 ;IN:R0, OUT:R5 (0-success, 1-fail/overflow)
