@@ -27,14 +27,14 @@ R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490
                    x0494 x0FF9 BRNZP TRAP_HALT
 Loaded "grade/test1.obj" and set PC to x4000
 Failed to load "prog1.obj."
-Illegal instruction at xFFFE!
-PC=xFFFE IR=x8000 PSR=x0400 (ZERO)
+Illegal instruction at xFE04!
+PC=xFE04 IR=x8000 PSR=x0400 (ZERO)
 R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
-                   xFFFE x8000 RTI   
+                   xFE04 x8000 RTI   
 
 Failed nightly test.
 This nightly test is focusing on compilation error not functionality test.
 This nightly report only tests on the released testcases.
 There are many hidden edge testcase for the MP. Please test it yourselve.
 HIGHLY RECOMMEND YOU TO START YOUR MP EARLY!!!!!!!
-Timestamp: 2021-09-04_18:18:41
+Timestamp: 2021-09-05_00:33:44
