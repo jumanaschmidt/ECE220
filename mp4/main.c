@@ -8,6 +8,10 @@
     Inputs: none
     Outputs: if provided a,b are invalid, returns -1. If there were no
     semiprimes in the range, returns 0. If there were semiprimes, returns 1.
+
+  Intro paragraph on semiprime.c
+
+
 */
 int main(){
    int a, b, ret;

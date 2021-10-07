@@ -11,6 +11,22 @@
  * in this file to help you get started.
  */
 
+/*
+    Intro: For this MP, we realized that only the three functions, set_seed, start_game, and make_guess, needed to be modified or added to.
+    So, we sequentially went through and completed each of them in order. The first two were fairly straight forward. With set_seed, we just
+    had to figure out how sscanf worked and what it was returning. This return value determined if there was an error or not. For start_game, 
+    we learned how the rand function worked and was used to generate a random position in the pool array to copy a string to the solution list,
+    for each location in solution (0-3). Thus, this random function and the string copy, or strcpy, let us create a randomized solution set.
+    For make_guess, this function was the most involed because a lot of its aspects were not intuitive at first. We began by following
+    the algorithm to use loops to 1. check if there were errors (invalid number of inputs or invalid inputs themselves) 2. see if there were 
+    perfect matches 3. see how many misplaced matches. We added the proper scoring system and return values, but we still got errors, so we realized
+    that the guess set needed to be multidimensional like the solution array. Lastly, we also realized to account for special cases, like a guess
+    with all the same inputs, we needed to have a separate array that marks which locations were already matched for perfect matches so theyre not 
+    accounted for again for the misplaced matches nest loops.
+
+    Partners: macraew2, mjzhang3
+
+*/
 
 
 #include <stdio.h>
@@ -86,10 +102,15 @@ int set_seed (const char seed_str[]) {
 //    You may need to change the return statement below
     int seed;
     char post[2];
-    if (sscanf (seed_str, "%d%1s", &seed, post) != 1) {
-      // your code here
+    if (sscanf(seed_str, "%d%1s", &seed, post) != 1) {  // checks if input is NOT exactly one integer and returns 0
+        printf("set seed: invalid seed\n");             // error message if input is not one integer
+        return 0;
     }
-    // your code here
+    else{                                               // input is one integer (valid input)
+        srand(seed);                                    // sets seed for srand function
+        return 1;
+    }
+
 }
 
 
@@ -107,7 +128,19 @@ int set_seed (const char seed_str[]) {
  * SIDE EFFECTS: records the solution in the static solution variables for use by make_guess, set guess_number
  */
 void start_game () {
-    //your code here
+    
+    int rand0 = rand() % 8;                 // uses rand function from stdio library to return random number & modulus' return value with highest number in range to return a random number within range
+    strcpy(solutions[0], pool[rand0]);      // copies string from pool array from random location in it to first location in solutions
+    int rand1 = rand() % 8;                 // new random location in pool array
+    strcpy(solutions[1], pool[rand1]);      // copies string from pool from another random location into second location in solutions
+    int rand2 = rand() % 8;
+    strcpy(solutions[2], pool[rand2]);      // copies string from pool from another random location into third location in solutions
+    int rand3 = rand() % 8;
+    strcpy(solutions[3], pool[rand3]);      // copies string from pool from another random location into fourth location in solutions
+
+    max_score = -1;                         // setting highest score
+    guess_number = 1;                       // setting number of guesses
+
 }
 
 /*
@@ -130,7 +163,64 @@ void start_game () {
  *               (NOTE: the output format MUST MATCH EXACTLY, check the wiki writeup)
  */
 int make_guess (const char guess_str[]) {
-  // your code here
+    int perfect_match = 0;
+    int misplaced_match = 0;
+    int current_score = 0;
+    char guess[4][10];       // multidimensional arrya for guesses
+    char post[2];            // array for extranoues inputs
+    int mark[4] = {0,0,0,0}; // array to mark which inputs are already matched
+
+    /*
+    checking if there are four inputs
+    copying each of the guess strings into multidimensional array guess[]
+    */
+    if(sscanf(guess_str, "%s%s%s%s%1s", guess[0], guess[1], guess[2], guess[3], post) != 4){
+        printf("make_guess: invalid guess \n");
+        return 0;
+    }
+
+    // checking if each of the four inputs are valid
+    for(int i=0; i<4; i++){                             // iterate through each of four positions
+        if(is_valid(guess[i]) == 0){                    // if return value of is_valid is 0 then input is invalid
+            printf("make_guess: invalid guess \n");
+            return 0;
+        }
+    }
+    for(int i=0; i<4; i++){                             // iterate through each of four positions
+        if(strcmp(guess[i],solutions[i]) == 0){         // compare string in guess with string in solutions both in position i
+            perfect_match++;                            // increment perfect match
+            current_score = current_score +1000;        // add 1000 to current score
+            mark[i] = 1;                                // mark position i in mark array as 1 to symbolize position as matched
+        }
+    }
+    for(int i=0; i<4; i++){                             // iterate through each of four positions of guess
+        if(mark[i] == 0){
+            for(int j=0; j<4; j++){                         // iterate through each of four positions of solutions
+                if(strcmp(guess[i],solutions[j]) == 0 && mark[j] ==  0){ // if the guess is equal
+                    misplaced_match++;                      // iterate misplaced match
+                    current_score = current_score + 100;    // add 100 to current core
+                    break;
+                }
+            }
+        }
+
+    }
+    
+    if(current_score > max_score){                      // update highest score if current score is higher
+        max_score = current_score;
+    }
+    printf("With guess %d, you got %d perfect matches and %d misplaced matches. \n Your score is %d and current max score is %d. \n", guess_number, perfect_match, misplaced_match, current_score, max_score);
+    guess_number++;                                     // increment number of guesses
+    if(perfect_match == 4){                             // if input is all perfect matches return 2
+        return 2;
+    }
+    else{
+        return 1;
+    }
 }
+    
+    
+
+
 
 
