@@ -1,5 +1,25 @@
+/*
+    Intro: For this mp we went through each function and completed them in order. The first few were easy to complete because
+    we just followed the site guidelines, but the move functions were harder. Though, we knew all the moves must have had a
+    similar algorithm because of the lab. Thus, we though of how to complete each. We realized each move required the board
+    sliding, merging, and then sliding again. So we though about how each move would iteratively change the board. For w and
+    s it made sense to iterate through the columns first. And then for a and d it made sense to iterate through the rows first.
+    We used the row major order as an index for everything, adding or subtracting 1 to rows or cols (i or j) depending on the
+    direction. We also realized for slide we needed to find a row or column with the highest or lowest empty row or column 
+    available to move to. And for merge, ofc course we iterated the same through as the move function's specific way and
+    would see if the cell above, below, right, or left of the current one was the same. Then set the incremented one to
+    2 * that value (because the two cells would be added together). Then the old cell would be emptied. Lastly, we set up
+    a flag for each move, and if it went into any of the slide or merge loops, then it would increment the flag, since it
+    meant the gameboard had changed.
+
+    Partner: macraew2
+
+
+*/
+
 #include "game.h"
 
+void slide_w(int i, int j, int M, int N, game * cur_game, int k);
 
 game * make_game(int rows, int cols)
 /*! Create an instance of a game structure with the given number of rows
@@ -14,11 +34,19 @@ game * make_game(int rows, int cols)
     mygame->cells = malloc(rows*cols*sizeof(cell));
 
     //YOUR CODE STARTS HERE:  Initialize all other variables in game struct
-
+    mygame->score = 0;                                                      // init score
+    mygame->rows = rows;
+    mygame->cols = cols;
+    int i,j;                                                                // temp rows & columns variable
+    for(i=0; i<rows; i++){                                                  // iterate through whole board
+        for(j=0; j<cols; j++){
+            mygame->cells[i*cols + j] = -1;                                 // set each cell as empty
+        }
+    }
 
     return mygame;
 }
-
+// my_game->score=0;
 void remake_game(game ** _cur_game_ptr,int new_rows,int new_cols)
 /*! Given a game structure that is passed by reference, change the
 	game structure to have the given number of rows and columns. Initialize
@@ -32,8 +60,19 @@ void remake_game(game ** _cur_game_ptr,int new_rows,int new_cols)
 	(*_cur_game_ptr)->cells = malloc(new_rows*new_cols*sizeof(cell));
 
 	 //YOUR CODE STARTS HERE:  Re-initialize all other variables in game struct
+    (*_cur_game_ptr)->score = 0;                                                // dereferenced to get values within
+    (*_cur_game_ptr)->rows = new_rows;
+    (*_cur_game_ptr)->cols = new_cols;
+    int* tempcells = (*_cur_game_ptr)->cells;                                   
+    int i,j;
+    for(i=0; i<new_rows; i++){
+        for(j=0; j<new_cols; j++){
+            *(tempcells) = -1;                                                  // make value at it temp cell empty
+            tempcells++;                                                        // increment cells to get through all without changing cells
+        }
+    }
 
-	return;	
+	//return;	
 }
 
 void destroy_game(game * cur_game)
@@ -54,8 +93,15 @@ cell * get_cell(game * cur_game, int row, int col)
 */
 {
     //YOUR CODE STARTS HERE
-
-    return NULL;
+    int c_bound = cur_game->cols;                                               // column boundary
+    int r_bound = cur_game->rows;                                               // row boundary
+    if((row>=r_bound) || (row<0)){                                              // if out of row bounds
+        return NULL;                                                            // return null for error
+    }
+    if((col>=c_bound) || (col<0)){                                              // if out of column bounds
+        return NULL;
+    }
+    return (cur_game->cells + row*c_bound + col);                               // return pointer to cell
 }
 
 int move_w(game * cur_game)
@@ -67,39 +113,299 @@ int move_w(game * cur_game)
 */
 {
     //YOUR CODE STARTS HERE
-
-    return 1;
-};
+    int N = cur_game->cols;
+    int M = cur_game->rows;
+    int target;                                                                     // target row
+    int i,j;
+    int flag = 0;                                                                   // flag to increment if gameboard changes
+    /*slide up*/
+    for(j=0; j<N; j++){                                                             // iterate through columns then rows until number of rows n columns
+        for(i=1; i<M; i++){                                                         // iterate through row starting at second row since there's nothing above first row
+            if(cur_game->cells[i*N+j] != -1){                                       // if current cell is not empty
+                for(target=0; target<i; target++){                                  // target is the smallest empty row you want to move the current value into
+                    if(cur_game->cells[target*N+j] == -1){                          // if target row is empty
+                        cur_game->cells[target*N+j] = cur_game->cells[i*N+j];       // putting value from current location into new target row
+                        cur_game->cells[i*N+j] = -1;                                // empty out old cell
+                        flag++;                                                     // flag to see if gameboard changed
+                    }
+                    
+                }
+            }
+        }
+    }
+    /*merge*/
+    for(j=0; j<N; j++){                                                             // iterate
+        for(i=1; i<M; i++){
+            if(cur_game->cells[i*N+j] != -1){                                       // if cell is not empty
+                if((cur_game->cells[i*N+j] == cur_game->cells[(i-1)*N+j])){         // if cell is equal to cell above it
+                    cur_game->cells[(i-1)*N+j] = (cur_game->cells[i*N+j]) *2;       // make cell above equal to double of the value they both equal
+                    cur_game->cells[i*N+j] = -1;                                    // empty old cell
+                    flag++;
+                    
+                    cur_game->score = cur_game->score + cur_game->cells[(i-1)*N+j]; // add new merged value to score
+                }
+            }
+        }
+    }
+    /*slide up*/
+    for(j=0; j<N; j++){                                                             // SAME AS TOP SLIDE LOOP
+        for(i=1; i<M; i++){
+            if(cur_game->cells[i*N+j] != -1){
+                for(target=0; target<i; target++){
+                    if(cur_game->cells[target*N+j] == -1){
+                        cur_game->cells[target*N+j] = cur_game->cells[i*N+j];
+                        cur_game->cells[i*N+j] = -1;
+                        flag++;
+                    }
+                    
+                }
+            }
+        }
+    }
+    if(legal_move_check(cur_game) == 0){                            // if legal move triggered or gameboard changed within accessed loops
+        return 0;                                                                   
+    }
+    else{
+        return 1;
+    }
+}
 
 int move_s(game * cur_game) //slide down
 {
     //YOUR CODE STARTS HERE
+    int N = cur_game->cols;
+    int M = cur_game->rows;
+    int target; // target
+    int i,j;
+    int flag = 0;
+    /*slide down*/
+    for(j=0; j<N; j++){                                                                   // iterate through columns starting a zero until # of cols
+        for(i=M-2; i>-1; i--){                                                            // iterate through rows starting at bottom and ignoring bottom row (M-2)
+            if(cur_game->cells[i*N+j] != -1){                                             // if current cell is empty
+                for(target=M-1; target>i; target--){                                      // target starts at very bottom row & looks until current row
+                    if(cur_game->cells[target*N+j] == -1){                                // if target cell is empty
+                        cur_game->cells[target*N+j] = cur_game->cells[i*N+j];             // move old cell into target cell
+                        cur_game->cells[i*N+j] = -1;                                      // empty out old cell
+                        flag++;                                                           // increment change flag
+                    }
+                    
+                }
+            }
+        }
+    }
+    /*merge*/
+    for(j=0; j<N; j++){                                                                    // increment like above
+        for(i=M-2; i>-1; i--){
+            if(cur_game->cells[i*N+j] != -1){                                              // if current cell is not empty
+                if((cur_game->cells[i*N+j] == cur_game->cells[(i+1)*N+j])){                // if cell below is the same as current cell
+                    cur_game->cells[(i+1)*N+j] = (cur_game->cells[i*N+j]) *2;              // merge
+                    cur_game->cells[i*N+j] = -1;                                           // empty out old/current cell
+                    flag++;
+                    cur_game->score = cur_game->score + cur_game->cells[(i+1)*N+j];
+                }
+            }
+        }
+    }
+    /*slide down*/
+    for(j=0; j<N; j++){                                                                     // SAME AS TOP LOOP
+        for(i=M-2; i>-1; i--){
+            if(cur_game->cells[i*N+j] != -1){
+                for(target=M-1; target>i; target--){
+                    if(cur_game->cells[target*N+j] == -1){
+                        cur_game->cells[target*N+j] = cur_game->cells[i*N+j];
+                        cur_game->cells[i*N+j] = -1;
+                        flag++;
+                    }
+                    
+                }
+            }
+        }
+    }
 
-    return 1;
-};
+    if(legal_move_check(cur_game) == 0){                                    // flag for if gameboard has changed
+        return 0;
+    }
+    else{
+        return 1;
+    }
 
+}
 int move_a(game * cur_game) //slide left
 {
     //YOUR CODE STARTS HERE
-
-    return 1;
-};
+    int N = cur_game->cols;
+    int M = cur_game->rows;
+    int target; // target
+    int i,j;
+    int flag = 0;
+    /*slide left*/
+    for(j=1; j<N; j++){                                                             // iterate through columns then rows
+        for(i=0; i<M; i++){                                                         // iterate through row starting at second row since there's nothing above first row
+            if(cur_game->cells[i*N+j] != -1){
+                for(target=0; target<j; target++){
+                    if(cur_game->cells[i*N+target] == -1){
+                        cur_game->cells[i*N+target] = cur_game->cells[i*N+j];
+                        cur_game->cells[i*N+j] = -1;
+                        flag++;
+                    }
+                   
+                }
+            }
+        }
+    }
+    /*merge*/
+    for(j=1; j<N; j++){
+        for(i=0; i<M; i++){
+            if(cur_game->cells[i*N+j] != -1){
+                if((cur_game->cells[i*N+j] == cur_game->cells[i*N+(j-1)])){
+                    cur_game->cells[i*N+(j-1)] = (cur_game->cells[i*N+j]) *2;
+                    cur_game->cells[i*N+j] = -1;
+                    flag++;
+                   
+                    cur_game->score = cur_game->score + cur_game->cells[i*N+(j-1)];
+                }
+            }
+        }
+    }
+    /*slide left*/
+    for(j=1; j<N; j++){                                                             // iterate through columns then rows
+        for(i=0; i<M; i++){                                                         // iterate through row starting at second column since there's nothing on the right
+            if(cur_game->cells[i*N+j] != -1){                                       
+                for(target=0; target<j; target++){                                  // find target column until current column
+                    if(cur_game->cells[i*N+target] == -1){                          // put target in j spot of row major order
+                        cur_game->cells[i*N+target] = cur_game->cells[i*N+j];
+                        cur_game->cells[i*N+j] = -1;
+                        flag++;
+                    }
+                   
+                }
+            }
+        }
+    }
+    if(legal_move_check(cur_game) == 0){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+}
 
 int move_d(game * cur_game){ //slide to the right
     //YOUR CODE STARTS HERE
+     int N = cur_game->cols;
+    int M = cur_game->rows;
+    int target; // target
+    int i,j;
+    int flag = 0;
+    /*slide right*/
+    for(j=N-2; j>-1; j--){                                                          // iterate starting at number of columns minus 2 until equal to zero
+        for(i=0; i<M; i++){                                                         // iterate starting at first row as normal
+            if(cur_game->cells[i*N+j] != -1){
+                for(target=N-1; target>j; target--){                                // finding target column starting from rightmost column until current col
+                    if(cur_game->cells[i*N+target] == -1){
+                        cur_game->cells[i*N+target] = cur_game->cells[i*N+j];
+                        cur_game->cells[i*N+j] = -1;
+                        flag++;
+                    }
+                   
+                }
+            }
+        }
+    }
+    /*merge*/
+    for(j=N-2; j>-1; j--){                                                          // same as others except with this iteration & merge with cell to right
+        for(i=0; i<M; i++){
+            if(cur_game->cells[i*N+j] != -1){
+                if((cur_game->cells[i*N+j] == cur_game->cells[i*N+(j+1)])){
+                    cur_game->cells[i*N+(j+1)] = (cur_game->cells[i*N+j]) *2;
+                    cur_game->cells[i*N+j] = -1;
+                    flag++;
+                   
+                    cur_game->score = cur_game->score + cur_game->cells[i*N+(j+1)];
+                }
+            }
+        }
+    }
+    /*slide right*/
+  for(j=N-2; j>-1; j--){                                                                // iterate through columns then rows
+        for(i=0; i<M; i++){                                                             // iterate through row starting at second row since there's nothing above first row
+            if(cur_game->cells[i*N+j] != -1){
+                for(target=N-1; target>j; target--){
+                    if(cur_game->cells[i*N+target] == -1){
+                        cur_game->cells[i*N+target] = cur_game->cells[i*N+j];
+                        cur_game->cells[i*N+j] = -1;
+                        flag++;
+                    }
+                   
+                }
+            }
+        }
+    }
+    if(legal_move_check(cur_game) == 0){
+        return 0;
+    }
+    else{
+        return 1;
+}
 
-    return 1;
+   
 };
 
 int legal_move_check(game * cur_game)
 /*! Given the current game check if there are any legal moves on the board. There are
     no legal moves if sliding in any direction will not cause the game to change.
-	Return 1 if there are possible legal moves, 0 if there are none.
+    Return 1 if there are possible legal moves, 0 if there are none.
  */
 {
     //YOUR CODE STARTS HERE
+    int v, q;
+    int N = cur_game->cols;
+    int M = cur_game->rows;
+for(int p= 0; p<M*N; p++){                                              // if any empty cells increment flag
+    if( cur_game->cells[p]==-1){
+        v++;
+    }
+}
+if(v>0){
+    return 1;                                                           // return 1 if flag triggered
+}
 
+for(int j=0; j<N; j++){
+    for (int i=1; i<M; i++){
+        if((cur_game->cells[i*N+j] == cur_game->cells[(i-1)*N+j])){     // if cell below is same
+            q++;
+        }
+    }
+}
+
+for(int j=0; j<N; j--){
+    for (int i=M-2; i>-1; i--){
+        if((cur_game->cells[i*N+j] == cur_game->cells[(i+1)*N+j])){     // if cell above is same
+            q++;
+        }
+    }
+}
+
+for(int j=N-2; j>-1; j--){
+    for (int i=0; i<M; i++){
+        if((cur_game->cells[i*N+j] == cur_game->cells[i*N+(j+1)])){     // if cell to right is the same
+            q++;
+        }
+    }
+}
+
+for(int j=1; j<N; j++){
+    for (int i=0; i<M; i++){
+        if((cur_game->cells[i*N+j] == cur_game->cells[i*N+(j-1)])){     // if cell to left is the same
+            q++;
+        }
+    }
+}
+
+if (q>0){
     return 1;
+}
+    return 0;
 }
 
 
